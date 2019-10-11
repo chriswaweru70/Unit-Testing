@@ -1,0 +1,84 @@
+import Model from '@/comments/Model';
+jest.mock('@/components/request');
+var model = new Model();
+
+const fakeData = {
+    "coord": {
+        "lon": -111.89,
+        "lat": 40.77
+    },
+    "weather": [
+        {
+            "id": 804,
+            "main": "Clouds",
+            "description": "overcast clouds",
+            "icon": "04n"
+        }
+    ],
+    "base": "stations",
+    "main": {
+        "temp": 271.34,
+        "pressure": 1025,
+        "humidity": 84,
+        "temp_min": 270.45,
+        "temp_max": 272.15
+    },
+    "visibility": 11265,
+    "wind": {
+        "speed": 3.1,
+        "deg": 250
+    },
+    "clouds": {
+        "all": 90
+    },
+    "dt": 1547345700,
+    "sys": {
+        "type": 1,
+        "id": 5859,
+        "message": 0.0042,
+        "country": "US",
+        "sunrise": 1547391022,
+        "sunset": 1547425350
+    },
+    "id": 420037357,
+    "name": "Salt Lake City",
+    "cod": 200
+}
+
+it('test mock module', () => {
+    return model.requestResponse("84102")
+        .then(result => {
+            expect(result.name).toBe("Salty Lake City")
+        })
+});
+
+it("Calls fetch with correct url", () => {
+    const fakeFetch = url => {
+        expect(url).toBe("https://api.openweathermap.org/data/2.5/weather?zip=84102,us&appid=YOURAPICODE")
+        return new Promise(function (resolve) {
+        })
+    }
+    model.fetchResponse(fakeFetch, "84102")
+});
+
+it("Check city name from the response", (done) => {
+    const fakeFetch = url => {
+        return Promise.resolve({
+            json: () => Promise.resolve(fakeData)
+        })
+    }
+    model.fetchResponse(fakeFetch, "84102")
+        .then(result => {
+            expect(result.name).toBe("Salt Lake City")
+        })
+    done();
+});
+
+describe("Kelvin to Fahrenheit converter", function () {
+    it("should convert Kelvin temperature to Fahrenheit", function () {
+        expect(model.convertToFahrenheit(270)).toBe(26);
+    })
+})
+
+
+
